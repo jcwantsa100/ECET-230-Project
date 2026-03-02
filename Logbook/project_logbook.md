@@ -1,116 +1,134 @@
-# Project Definition – Personal Weather Station
+# Project Logbook – Personal Weather Station
 
-## High-Level Description
+## Phase: Environmental Sensor Development
 
-This project is an embedded environmental monitoring system designed to collect real-time atmospheric data and provide user feedback based on programmed logic. The system uses environmental sensors connected to a Raspberry Pi to measure temperature, humidity, and (future) atmospheric pressure.
+### Initial Objective
+Integrate environmental sensors with Raspberry Pi to monitor:
+- Temperature
+- Humidity
+- Atmospheric Pressure
 
-The system processes sensor data and provides feedback through a graphical interface and audible alerts.
-
----
-
-## Purpose
-
-The purpose of this project is to design and implement a functional microcontroller-based environmental monitoring system using concepts learned in ECET-230.
-
-The project emphasizes:
-
-- Hardware-software integration
-- Structured system organization
-- Reliable sensor communication
-- Iterative refinement
-- Clear engineering documentation
-
-The goal is to demonstrate stable data acquisition, processing, and meaningful user feedback.
+The original plan was to use the BME280 for all three measurements.
 
 ---
 
-## Objectives
+## Hardware Testing – BME280
 
-- Design a complete environmental monitoring system using a block diagram
-- Implement the system using breadboard-level hardware
-- Interface environmental sensors with Raspberry Pi GPIO and I2C
-- Demonstrate stable temperature and humidity monitoring
-- Integrate pressure sensing (BME280) once stable
-- Implement trend-based weather detection logic
-- Demonstrate correct data processing and output feedback
-- Maintain organized engineering documentation in GitHub
+### Issue Observed
+The BME280 modules received were unreliable.
 
----
+Symptoms:
+- Incorrect pin labels
+- Inconsistent readings
+- Communication failures
+- Unstable I2C behavior
+- Random read errors
 
-## User Interaction
+Multiple wiring configurations and library implementations were tested. Stable operation could not be achieved.
 
-The user interacts with the system passively.
+### Engineering Decision
+Pause BME280 integration and prioritize system stability.
 
-The system continuously monitors environmental conditions and displays:
-
-- Temperature readings
-- Humidity readings
-- Status messages
-- Alerts (when conditions indicate change)
-
-If atmospheric pressure drops rapidly (future implementation), the system will notify the user through:
-
-- GUI message update
-- Audible alert
-
-The system operates automatically without requiring manual user input during normal operation.
+Shift focus to DHT22 for temperature and humidity monitoring to ensure a working subsystem before expanding.
 
 ---
 
-## System Components
+## DHT22 Integration
 
-### Inputs
-- DHT22 (Temperature and Humidity)
-- BME280 (Pressure – integration in progress)
+### Hardware Configuration
+- DATA → GPIO4 (Physical Pin 7)
+- Power → 3.3V
+- Ground → Physical Pin 6
+- Breakout board includes internal pull-up resistor
 
-### Processing
-- Raspberry Pi 4
-- Python-based logic
-- Retry handling and trend detection algorithms
-
-### Outputs
-- Tkinter GUI display
-- Console monitoring
-- Audible alert (speaker/buzzer)
-
-### Power
-- 5V DC supply (Raspberry Pi regulated input)
-- 3.3V logic for GPIO communication
+Verified correct 3.3V logic compatibility.
 
 ---
 
-## Constraints
+## Initial Software Implementation
 
-- Must be implementable on a breadboard using development modules
-- Must operate at 3.3V GPIO logic levels
-- Linux timing limitations require retry logic for sensor stability
-- Hardware reliability must be validated before full integration
-- All design choices must remain feasible within the ECET-230 course scope
+### Version 1 – Basic Read Script
+Issue:
+- Frequent "DHT sensor not found" errors.
 
----
-
-## Current Scope
-
-### Completed
-- DHT22 integration
-- 2-second stable sampling
-- Retry logic implementation
-- GUI environmental display
-
-### In Progress
-- BME280 pressure integration
-- Pressure trend detection
-- Rain likelihood notification logic
+Cause:
+- DHT22 uses a timing-sensitive single-wire protocol.
+- Linux is not a real-time operating system.
+- Timing jitter caused handshake failures.
 
 ---
 
-## Project Vision
+## Stabilization Process
 
-The final system will operate as a reliable personal weather station capable of:
+### Version 2 – Retry Logic
+Implemented:
+- 3 read attempts per sampling cycle
+- Short delay between retries
+- Storage of last valid reading
 
-- Monitoring environmental conditions in real time
-- Detecting meaningful atmospheric trends
-- Providing clear user feedback
-- Operating stably under real-world conditions
+Result:
+- Significant reduction in visible failures.
 
-The project evolves through structured debugging, iterative refinement, and subsystem validation.
+---
+
+### Version 3 – Stable Console Monitor
+Implemented:
+- 2-second sampling interval
+- Structured error handling using try/except
+- Clean formatted output
+
+Result:
+- Reliable temperature and humidity monitoring.
+
+---
+
+### Version 4 – GUI Integration
+Integrated sensor into Tkinter interface.
+
+Enhancements:
+- Scheduled updates using after()
+- Preserved last valid reading during failure
+- Added status indicator
+
+Result:
+- Stable graphical display without crashes.
+
+---
+
+## Current System Status
+
+Temperature and humidity monitoring are stable.
+
+Subsystem is validated for:
+- 2-second sampling
+- Retry-based stability
+- GUI and console operation
+
+---
+
+## Pending Work
+
+- Reattempt BME280 integration
+- Debug I2C instability
+- Implement pressure monitoring
+- Develop pressure trend detection algorithm
+- Integrate rain likelihood notification logic
+
+---
+
+## Key Lessons Learned
+
+- Timing-sensitive protocols require retry strategies under Linux.
+- Hardware reliability must be verified early.
+- Subsystems should be validated individually before integration.
+- Stability is prioritized over feature expansion.
+
+---
+
+## Next Iteration Plan
+
+1. Retest BME280 with controlled wiring and I2C scan verification.
+2. Confirm stable pressure readings.
+3. Merge DHT22 and BME280 into unified environmental module.
+4. Implement pressure trend detection logic.
+5. Test alert triggering mechanism.
