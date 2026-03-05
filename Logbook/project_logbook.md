@@ -100,7 +100,7 @@ Result:
 Temperature and humidity monitoring are stable.
 
 Subsystem is validated for:
-- 2-second sampling
+- 2.5-second sampling
 - Retry-based stability
 - GUI and console operation
 
